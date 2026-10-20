@@ -1,0 +1,17 @@
+.venv/
+.tools/
+__pycache__/
+.pytest_cache/
+.test-runs/
+frontend/test-results/
+frontend/playwright-report/
+data/
+data-restored/
+*.acb
+node_modules/
+dist/
+*.log
+.env
+.env.*
+!.env.example
+AGENTS.md

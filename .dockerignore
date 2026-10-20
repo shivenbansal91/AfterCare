@@ -1,0 +1,13 @@
+.git
+.venv
+.tools
+data
+data-restored
+frontend/node_modules
+frontend/dist
+**/__pycache__
+**/.pytest_cache
+.env
+*.acb
+docs
+samples

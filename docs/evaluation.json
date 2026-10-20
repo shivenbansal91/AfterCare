@@ -1,0 +1,47 @@
+{
+  "scope": "Six generated fixtures, two spacings; sanity check only, not a held-out clinical benchmark",
+  "results": [
+    {
+      "variant": 0,
+      "fields": 19,
+      "patient_exact": true,
+      "source_linked": 19,
+      "invented_missing_duration": false
+    },
+    {
+      "variant": 1,
+      "fields": 19,
+      "patient_exact": true,
+      "source_linked": 19,
+      "invented_missing_duration": false
+    },
+    {
+      "variant": 2,
+      "fields": 19,
+      "patient_exact": true,
+      "source_linked": 19,
+      "invented_missing_duration": false
+    },
+    {
+      "variant": 3,
+      "fields": 19,
+      "patient_exact": true,
+      "source_linked": 19,
+      "invented_missing_duration": false
+    },
+    {
+      "variant": 4,
+      "fields": 19,
+      "patient_exact": true,
+      "source_linked": 19,
+      "invented_missing_duration": false
+    },
+    {
+      "variant": 5,
+      "fields": 19,
+      "patient_exact": true,
+      "source_linked": 19,
+      "invented_missing_duration": false
+    }
+  ]
+}

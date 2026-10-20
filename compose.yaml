@@ -1,0 +1,46 @@
+services:
+  app:
+    build: .
+    environment:
+      AFTERCARE_PUBLIC_ORIGIN: https://${AFTERCARE_DOMAIN:?Set AFTERCARE_DOMAIN}
+      AFTERCARE_SECURE_COOKIE: "1"
+      AFTERCARE_VAULT_KEY: ${AFTERCARE_VAULT_KEY:?Set a base64 32-byte vault key}
+      AFTERCARE_PUSH_SUBJECT: https://${AFTERCARE_DOMAIN}
+      OLLAMA_URL: http://ollama:11434
+    volumes:
+      - aftercare_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8000/api/health'), timeout=8)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+  proxy:
+    image: caddy:2
+    environment:
+      AFTERCARE_DOMAIN: ${AFTERCARE_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+  ollama:
+    image: ollama/ollama:latest
+    profiles: [ai]
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+volumes:
+  aftercare_data:
+  caddy_data:
+  caddy_config:
+  ollama_data:

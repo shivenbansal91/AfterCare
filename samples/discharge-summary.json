@@ -1,0 +1,161 @@
+{
+  "patient": "Aarav Mehta",
+  "lines": [
+    {
+      "text": "FICTIONAL DOCUMENT - FOR SOFTWARE TESTING ONLY",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          59.25,
+          313.3599853515625,
+          72.98999786376953
+        ]
+      ]
+    },
+    {
+      "text": "Hospital: Willowbrook Medical Centre",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          95.17500305175781,
+          217.1489715576172,
+          110.28900146484375
+        ]
+      ]
+    },
+    {
+      "text": "Discharge summary",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          132.1750030517578,
+          132.79000854492188,
+          147.28900146484375
+        ]
+      ]
+    },
+    {
+      "text": "Patient: Aarav Mehta",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          169.1750030517578,
+          137.71798706054688,
+          184.28900146484375
+        ]
+      ]
+    },
+    {
+      "text": "Age: 32",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          206.1750030517578,
+          72.91699981689453,
+          221.28900146484375
+        ]
+      ]
+    },
+    {
+      "text": "Doctor: Dr. Ananya Rao",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          243.1750030517578,
+          151.76498413085938,
+          258.28900146484375
+        ]
+      ]
+    },
+    {
+      "text": "Discharge date: 2026-10-17",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          280.17498779296875,
+          171.34495544433594,
+          295.28900146484375
+        ]
+      ]
+    },
+    {
+      "text": "Medication: Amoxicillin | 500 mg | 1 capsule | Twice daily | 5 days | After food",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          317.17498779296875,
+          409.385009765625,
+          332.28900146484375
+        ]
+      ]
+    },
+    {
+      "text": "Medication: Paracetamol | 500 mg | 1 tablet | As needed | Not stated | For pain",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          354.17498779296875,
+          416.7659912109375,
+          369.28900146484375
+        ]
+      ]
+    },
+    {
+      "text": "Follow-up: 2026-10-24 - Dr. Ananya Rao",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          391.17498779296875,
+          233.0769500732422,
+          406.28900146484375
+        ]
+      ]
+    },
+    {
+      "text": "Tests: Complete blood count before follow-up",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          428.17498779296875,
+          256.3199462890625,
+          443.28900146484375
+        ]
+      ]
+    },
+    {
+      "text": "Instructions: Follow the discharge instructions. Contact the care team for clarification.",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          465.17498779296875,
+          448.27001953125,
+          480.28900146484375
+        ]
+      ]
+    },
+    {
+      "text": "No exact clock times are prescribed. Do not infer a reminder schedule.",
+      "page": 0,
+      "boxes": [
+        [
+          35.0,
+          502.17498779296875,
+          377.95794677734375,
+          517.2890014648438
+        ]
+      ]
+    }
+  ]
+}
