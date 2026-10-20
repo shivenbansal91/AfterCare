@@ -4,6 +4,18 @@ AfterCare is a personal medicine and care organizer built with React, TypeScript
 
 The current V2 runs as a local web app with iPhone and Pixel development previews. It includes the application and an HTTPS deployment configuration; public hosting, phone installation and real-device background notification delivery still require verification.
 
+## App preview
+
+Patient and caretaker screens from the local web app, using fictional demo records. The caretaker view shown here has view-only access and displays recorded care statuses.
+
+| Patient Home & reminders | Visits & follow-ups |
+| :---: | :---: |
+| <img src="docs/screenshots/home.png" alt="Patient Home with a medicine reminder, dose actions and pagination dots" width="260"> | <img src="docs/screenshots/visits.png" alt="Visits with an add appointment action and source-linked follow-ups" width="260"> |
+
+| Care circle | Caretaker's shared journey |
+| :---: | :---: |
+| <img src="docs/screenshots/care-circle.png" alt="Care circle with caregiver invitations, access history and contacts" width="260"> | <img src="docs/screenshots/caretaker.png" alt="View-only caretaker dashboard with taken, skipped and pending counts and a shared medicine reminder" width="260"> |
+
 ## Features
 
 - **Prescription import:** read supported PDFs, scans and photos locally. Keep the original document and highlighted source evidence alongside corrections. Missing or unclear details remain explicit.
@@ -17,6 +29,14 @@ The current V2 runs as a local web app with iPhone and Pixel development preview
 - **Record management:** export, archive, restore or permanently delete records. Accounts, source evidence, dose history and originals are encrypted at rest. Offline tools provide encrypted installation backup and restore.
 
 The Home profile initial opens Account settings. Existing profile and document-group organization remains available without requiring a recovery-space setup in normal personal use.
+
+## Typical workflow
+
+1. Create an account and upload a prescription or add medicines manually.
+2. Review the details in one overview, correct mistakes and fill missing information.
+3. Confirm suitable reminder times, course dates and a time zone, using daily-routine suggestions where appropriate.
+4. Track doses from Home and manage appointments, prescriptions and contacts in their own sections.
+5. Optionally invite a caretaker. After accepting through their own account, they can follow the shared journey with the permissions and updates chosen by the owner.
 
 ## How it works
 
