@@ -1,3 +1,6 @@
+import { isPhone } from "./phone-platform";
+import { openPhoneDocument, phoneRequest } from "./phone";
+
 export type CareField = {
   id: string;
   group: string;
@@ -188,7 +191,9 @@ export function jsonRequest(method: string, body: unknown): RequestInit {
 }
 
 async function request(path: string, options?: RequestInit) {
-  const response = await fetch(`/api${path}`, options);
+  const response = isPhone
+    ? await phoneRequest(path, options)
+    : await fetch(`/api${path}`, options);
   if (!response.ok) {
     if (response.status === 401 && !path.startsWith("/auth/"))
       window.dispatchEvent(new Event("aftercare-signed-out"));
@@ -213,6 +218,8 @@ export async function api<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export async function downloadReport(id: string) {
+  if (isPhone)
+    return openPhoneDocument(`/reports/${id}/export`, "aftercare-report.zip");
   const response = await request(`/reports/${id}/export`);
   const url = URL.createObjectURL(await response.blob());
   const link = document.createElement("a");
@@ -222,6 +229,10 @@ export async function downloadReport(id: string) {
   link.click();
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export async function sourceImage(path: string) {
+  return URL.createObjectURL(await (await request(path)).blob());
 }
 
 export function updateField(

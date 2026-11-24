@@ -19,6 +19,7 @@ def main():
         commands = [
             ([str(python), "-m", "pytest", "backend", "-q", "--basetemp", str(Path(temporary) / "tests")], ROOT),
             ([npm, "run", "test:care"], ROOT / "frontend"),
+            ([npm, "run", "test:phone"], ROOT / "frontend"),
             ([npm, "run", "build"], ROOT / "frontend"),
         ]
         for command, directory in commands:

@@ -15,3 +15,20 @@ dist/
 .env.*
 !.env.example
 AGENTS.md
+releases/
+
+# Mobile packages and signing keys
+*.apk
+*.apk.sha256
+*.aab
+*.apks
+*.ap_
+*.jks
+*.keystore
+
+# Local Android SDK configuration and build output
+frontend/android/.gradle/
+frontend/android/.kotlin/
+frontend/android/build/
+frontend/android/app/build/
+frontend/android/local.properties

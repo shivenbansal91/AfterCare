@@ -62,12 +62,21 @@ function useDeviceScale(deviceWidth: number, deviceHeight: number) {
 }
 
 export function PhoneFrame({ children }: PropsWithChildren) {
-  const { device } = useMobileDevice();
+  const { device, native } = useMobileDevice();
   const { geometry } = device;
   const scale = useDeviceScale(geometry.device.width, geometry.device.height);
   const screenRef = useRef<HTMLDivElement | null>(null);
   const contextValue = useMemo(() => ({ screenRef }), []);
   const mobileCursor = useMobileCursor();
+
+  if (native) return (
+    <ScreenPortalContext.Provider value={contextValue}>
+      <div ref={screenRef} className="device-screen native-screen" data-phone-screen data-testid="device-screen"
+        onDragStartCapture={suppressNativeDrag} style={{ "--device-safe-area-bottom": "0px" } as CSSProperties}>
+        {children}
+      </div>
+    </ScreenPortalContext.Provider>
+  );
 
   return (
     <ScreenPortalContext.Provider value={contextValue}>

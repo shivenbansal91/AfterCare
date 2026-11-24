@@ -26,6 +26,7 @@ from .sample import create_sample
 from .tracking import router as tracking_router
 from .schedules import router as schedules_router
 from .personal import router as personal_router, migrate_personal_mode, personal_space
+from .mobile import router as mobile_router
 
 @asynccontextmanager
 async def lifespan(app):
@@ -53,6 +54,7 @@ app.include_router(schedules_router)
 app.include_router(personal_router)
 app.include_router(medicine_info_router)
 app.include_router(reminders_router)
+app.include_router(mobile_router)
 
 
 @app.middleware("http")

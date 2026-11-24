@@ -2,6 +2,10 @@
 
 A personal medicine and care organizer. Upload a PDF or photo, or enter medicines manually; review details together and explicitly confirm personal reminder settings. Preserve source evidence and never invent missing instructions. The current revision below supersedes historical milestones.
 
+## Android test client — 2026-10-29
+
+The 2026-10-29 phone conversion adds a Capacitor Android test client while preserving the desktop preview. The user chose USB connection to the computer for initial testing, authorized project-local Android SDK tooling and will test on a physical phone later. Download owner-only plans and server-expanded UTC occurrences into an Android Keystore-backed encrypted vault for up to seven days; do not persist caretaker grants or shared patient records for offline use. Use explicit notification permission and device-scheduled reminders, and keep an encrypted outbox for Taken/Skipped/Snooze/Undo with idempotency, source fingerprint and concurrent-edit checks at sync. Pause alarms before plan-affecting writes until a fresh snapshot is available. Groq integration, public hosting, store distribution and native background caretaker push are separate work, not claims of this test APK.
+
 ## Current additions — 2026-10-20
 
 Home reminder cards page one at a time with left/right swipes and tappable position dots underneath. Keep the existing nested vertical scrolling and reminder actions intact; do not present reminders as a free-scrolling slider.

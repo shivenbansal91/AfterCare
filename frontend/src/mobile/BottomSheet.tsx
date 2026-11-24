@@ -22,7 +22,7 @@ export function BottomSheet({
   snap = 0.72,
   children,
 }: BottomSheetProps) {
-  const { device } = useMobileDevice();
+  const { device, native } = useMobileDevice();
   const { screenRef } = useScreenPortal();
   const keyboard = useKeyboard();
   const { keyboardHeight } = useKeyboardInsets();
@@ -66,7 +66,9 @@ export function BottomSheet({
   );
 
   const sheetHeight = Math.round(device.geometry.screen.height * snap);
-  const effectiveHeight = Math.max(260, sheetHeight - Math.min(keyboardHeight, 180));
+  const effectiveHeight = native
+    ? Math.max(1, Math.min(device.geometry.screen.height - 16, sheetHeight))
+    : Math.max(260, sheetHeight - Math.min(keyboardHeight, 180));
   const sheetBottom =
     device.platform === "android"
       ? Math.max(device.geometry.safeArea.bottom, keyboardHeight)

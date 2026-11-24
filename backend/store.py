@@ -60,6 +60,11 @@ def database_connection():
             note TEXT NOT NULL, actor_id TEXT NOT NULL, recorded_at TEXT NOT NULL,
             snoozed_until TEXT, snapshot TEXT NOT NULL, PRIMARY KEY(schedule_id,due_at)
         );
+        CREATE TABLE IF NOT EXISTS mobile_dose_receipts (
+            user_id TEXT NOT NULL, request_id TEXT NOT NULL, signature TEXT NOT NULL,
+            schedule_id TEXT NOT NULL, due_at TEXT NOT NULL, recorded_at TEXT NOT NULL,
+            PRIMARY KEY(user_id,request_id)
+        );
         CREATE TABLE IF NOT EXISTS push_devices (
             id TEXT PRIMARY KEY, user_id TEXT NOT NULL, subscription TEXT NOT NULL,
             endpoint TEXT UNIQUE NOT NULL, created_at TEXT NOT NULL

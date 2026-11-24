@@ -10,6 +10,7 @@ import {
   type FlowScreen,
 } from "../src/mobile";
 import "../src/styles.css";
+import "../src/prototype.css";
 import "./runtime-fixture.css";
 
 function CarouselFixture() {
@@ -103,6 +104,24 @@ function KeyboardFixture() {
   );
 }
 
+function NativeFixture() {
+  const [open, setOpen] = useState(false);
+  return <MobileRuntime native>
+    <div className="aftercare-app">
+      <header className="app-header"><strong>AfterCare on your phone</strong></header>
+      <MobileScroll className="aftercare-scroll">
+        <main className="care-content">
+          <h1>Your medicines</h1>
+          <KeyboardInput aria-label="Phone medicine name" placeholder="Medicine name" />
+          <button className="primary" onClick={() => setOpen(true)}>Open phone sheet</button>
+          <div className="fixture-tall-content">Phone content</div>
+        </main>
+      </MobileScroll>
+      <BottomSheet open={open} onOpenChange={setOpen} title="Phone details"><p>Real phone layout</p></BottomSheet>
+    </div>
+  </MobileRuntime>;
+}
+
 function stackedScreen(level: number): FlowScreen {
   return {
     id: `flow-level-${level}`,
@@ -165,7 +184,9 @@ function FlowFixture() {
 
 const fixture = new URLSearchParams(window.location.search).get("fixture");
 const fixtureElement =
-  fixture === "keyboard"
+  fixture === "native"
+    ? <NativeFixture />
+    : fixture === "keyboard"
     ? <KeyboardFixture />
     : fixture === "flow"
       ? <FlowFixture />

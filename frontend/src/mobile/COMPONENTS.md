@@ -1,5 +1,9 @@
 # Mobile runtime components
 
+## Native phone layout
+
+`MobileRuntime` detects Capacitor on Android and renders app content at the real viewport size, preserving the portal and keyboard contexts without simulated device assets or keyboard. `native` can be supplied explicitly by a runtime fixture. Device geometry follows viewport resize; Android system-bar and keyboard insets are managed by Capacitor. Desktop defaults and device presets remain unchanged. The native layout is styled through `.native-screen` in the app's `prototype.css`.
+
 ## Carousel
 
 `Carousel` is the standard component for horizontal collections: cards, images, media, swipeable items, and chip or filter rails. Place it directly inside `MobileScroll`; consumers should not add gesture wrappers or pointer handlers.

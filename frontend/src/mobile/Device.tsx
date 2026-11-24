@@ -1,4 +1,4 @@
-import { createContext, type PropsWithChildren, useContext, useMemo, useState } from "react";
+import { createContext, type PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { mobileAssets } from "./assets";
@@ -46,15 +46,26 @@ type MobileDeviceContextValue = {
   device: MobileDevicePreset;
   deviceId: MobileDeviceId;
   setDeviceId: (deviceId: MobileDeviceId) => void;
+  native: boolean;
 };
 
 const MobileDeviceContext = createContext<MobileDeviceContextValue | null>(null);
 
-export function MobileDeviceProvider({ children }: PropsWithChildren) {
+export function MobileDeviceProvider({ children, native = false }: PropsWithChildren<{ native?: boolean }>) {
   const [deviceId, setDeviceId] = useState<MobileDeviceId>("iphone");
+  const [viewport, setViewport] = useState(() => ({ width: window.innerWidth, height: window.innerHeight }));
+  useEffect(() => {
+    if (!native) return;
+    const resize = () => setViewport({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, [native]);
   const value = useMemo(
-    () => ({ device: mobileDevices[deviceId], deviceId, setDeviceId }),
-    [deviceId],
+    () => ({ device: native ? {
+      ...mobileDevices["pixel-10"],
+      geometry: { device: viewport, screen: { ...viewport, x: 0, y: 0, radius: 0 }, safeArea: { top: 0, bottom: 0 }, keyboard: { height: 0 } },
+    } : mobileDevices[deviceId], deviceId, setDeviceId, native }),
+    [deviceId, native, viewport],
   );
 
   return <MobileDeviceContext.Provider value={value}>{children}</MobileDeviceContext.Provider>;

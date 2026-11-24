@@ -68,6 +68,14 @@ import {
   type VisitItem,
 } from "./api";
 import { careSummary, medicines, savedMedicines } from "./care-summary";
+import { App } from "@capacitor/app";
+import { isPhone } from "./phone-platform";
+import {
+  openDocument,
+  PhoneNotificationControls,
+  PhoneSourceImage,
+  PhoneStatus,
+} from "./phone-ui";
 import "@fontsource/manrope/400.css";
 import "@fontsource/manrope/500.css";
 import "@fontsource/manrope/600.css";
@@ -302,7 +310,7 @@ export default function Prototype() {
     return <RecoveryApp key={account.id} account={account} signOut={signOut} />;
   return (
     <MotionConfig reducedMotion="user">
-      <div className="aftercare-app">
+      <div className="aftercare-app" onClickCapture={openDocument}>
         <MobileScroll className="aftercare-scroll">
           <main className="care-content account-screen">
             <FirstAidKit size={44} weight="duotone" />
@@ -1520,11 +1528,10 @@ function PlanOverview({
             <>
               <p>{source.source.text}</p>
               <div className="overview-source-wrap">
-                <img
+                <PhoneSourceImage
                   className="overview-source"
-                  src={`/api/reports/${report.id}/pages/${source.source.page}`}
+                  path={`/reports/${report.id}/pages/${source.source.page}`}
                   alt={`Original page ${source.source.page + 1}`}
-                  draggable={false}
                 />
                 {source.source.boxes.map((box, index) => {
                   const page = report.pages[source.source!.page];
@@ -1718,45 +1725,63 @@ function MedicineExplanation({
     };
   }, [reportId, group]);
   return (
-    <div className="medicine-explanation">
-      <h3>What is this medicine for?</h3>
+    <section
+      className="medicine-panel medicine-explanation"
+      aria-label="About this medicine"
+    >
+      <div className="medicine-panel-heading">
+        <span className="settings-row-icon">
+          <Info size={21} />
+        </span>
+        <div>
+          <h3>About this medicine</h3>
+          <p>General medicine information</p>
+        </div>
+      </div>
       {error && !info ? (
-        <p>{error}</p>
+        <p role="alert">{error}</p>
       ) : !info ? (
-        <p>Checking the reference…</p>
+        <p role="status">Checking the reference…</p>
       ) : (
         <>
-          {info.facts.map((fact) => (
-            <p key={fact}>{fact}</p>
-          ))}
-          <p className="fine-print">{info.notice}</p>
-          {info.reason && (
-            <p>
-              <strong>
-                {info.reason_origin === "document"
-                  ? "Reason stated in the document"
-                  : "Reason added by you"}
-                :
-              </strong>{" "}
-              {info.reason}
-            </p>
-          )}
-          {info.reason_source && (
-            <details className="explanation-evidence">
-              <summary>Where this reason is stated</summary>
-              <p>{info.reason_source.text}</p>
-              <small>Original page {info.reason_source.page + 1}</small>
-            </details>
-          )}
+          <div className="medicine-overview">
+            {info.facts.map((fact) => (
+              <p key={fact}>{fact}</p>
+            ))}
+            {!info.matched && <p>{info.notice}</p>}
+          </div>
+          <div className="medicine-prescription">
+            <h4>Your prescription</h4>
+            {info.reason ? (
+              <>
+                <span className="medicine-attribution">
+                  {info.reason_origin === "document"
+                    ? "Reason stated in the document"
+                    : "Reason added by you"}
+                </span>
+                <p>{info.reason}</p>
+                {info.reason_source && (
+                  <details className="explanation-evidence">
+                    <summary>View source excerpt</summary>
+                    <p>{info.reason_source.text}</p>
+                    <small>Original page {info.reason_source.page + 1}</small>
+                  </details>
+                )}
+              </>
+            ) : (
+              <p className="medicine-missing">
+                A specific reason for this medicine was not stated.
+              </p>
+            )}
+          </div>
           {info.context.length > 0 && (
             <div className="report-context">
-              <strong>In your report</strong>
+              <h4>In your report</h4>
               {info.context.map((item) => (
-                <div key={item.id}>
-                  <p>
-                    {item.label}: {item.value}
-                  </p>
-                  <small>
+                <div className="medicine-context-item" key={item.id}>
+                  <span className="medicine-attribution">{item.label}</span>
+                  <p>{item.value}</p>
+                  <small className="medicine-attribution">
                     {item.origin === "manual"
                       ? "Added by you"
                       : `From original, page ${(item.source?.page || 0) + 1}`}
@@ -1771,29 +1796,36 @@ function MedicineExplanation({
                 </div>
               ))}
               {info.context_notice && (
-                <p className="fine-print">{info.context_notice}</p>
+                <p className="medicine-help">{info.context_notice}</p>
               )}
             </div>
           )}
-          {!info.reason && !info.context.length && (
-            <p className="fine-print">
-              Your specific reason was not stated. The app does not infer it
-              from a diagnosis.
-            </p>
+          {info.matched && (
+            <details className="medicine-information-note">
+              <summary>
+                <Info size={15} /> About this information{" "}
+                <CaretDown size={14} />
+              </summary>
+              <p>{info.notice}</p>
+            </details>
           )}
           {info.source_url && (
             <a
-              className="text-button"
+              className="medicine-source-link"
               href={info.source_url}
               target="_blank"
               rel="noreferrer"
             >
-              Read NHS medicine information
+              <span>
+                <strong>Read NHS medicine information</strong>
+                <small>Opens the NHS website</small>
+              </span>
+              <ArrowRight size={17} />
             </a>
           )}
         </>
       )}
-    </div>
+    </section>
   );
 }
 
@@ -2709,6 +2741,7 @@ function CareUpdates({
 
 function ReminderWatcher({ accountId }: { accountId: string }) {
   useEffect(() => {
+    if (isPhone) return;
     let active = true;
     const shown = new Set<string>();
     const poll = async () => {
@@ -2754,6 +2787,7 @@ function ReminderWatcher({ accountId }: { accountId: string }) {
 }
 
 function ReminderControls({ accountId }: { accountId: string }) {
+  if (isPhone) return <PhoneNotificationControls />;
   const [items, setItems] = useState<Reminder[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [loadError, setLoadError] = useState("");
@@ -3121,6 +3155,18 @@ function RecoveryApp({
   const pending =
     report?.fields.filter((f) => f.status === "pending").length || 0;
   const name = patient?.name.split(" ")[0];
+  useEffect(() => {
+    if (!isPhone) return;
+    const listener = App.addListener("backButton", () => {
+      keyboard.hide();
+      if (sheet) setSheet(null);
+      else if (screen !== "Home") setScreen("Home");
+      else void App.minimizeApp();
+    });
+    return () => {
+      void listener.then((handle) => handle.remove());
+    };
+  }, [screen, sheet]);
   const today = new Intl.DateTimeFormat("en-CA").format(now);
   const summary = careSummary(report, activity, today);
   useEffect(() => {
@@ -3787,13 +3833,23 @@ function RecoveryApp({
           </div>
         ))}
       </div>
+    ) : group ? (
+      <div className="medicine-history-empty">
+        <span className="settings-row-icon">
+          <ClipboardText size={22} />
+        </span>
+        <div>
+          <strong>No records yet</strong>
+          <p>Taken and skipped entries will appear here.</p>
+        </div>
+      </div>
     ) : (
       <p className="activity-empty">No medication activity recorded yet.</p>
     );
   }
   return (
     <MotionConfig reducedMotion="user">
-      <div className="aftercare-app">
+      <div className="aftercare-app" onClickCapture={openDocument}>
         <ReminderWatcher accountId={account.id} />
         <header className="app-header">
           {screen === "Home" ? (
@@ -3868,6 +3924,7 @@ function RecoveryApp({
         </header>
         <MobileScroll className="aftercare-scroll" key={screen}>
           <main className={`care-content screen-${screen.toLowerCase()}`}>
+            <PhoneStatus shared={!!patient && !isOwner} />
             {notice && (
               <div className="success-banner" role="status">
                 <CheckCircle size={19} />
@@ -5725,96 +5782,133 @@ function RecoveryApp({
             </div>
           )}
           {sheet === "medication" && selectedMedication && (
-            <div className="sheet-body">
-              <div className="medication-facts">
-                {selectedMedication.fields.map((field) => (
-                  <div key={field.id}>
-                    <span>{field.label}</span>
-                    <strong>{field.value}</strong>
-                  </div>
-                ))}
-              </div>
-              <button
-                className="text-button"
-                onClick={() => {
-                  setSheet(null);
-                  select(selectedMedication.fields[0]);
-                  navigate("Review");
-                }}
+            <div className="sheet-body medicine-details">
+              <section
+                className="medicine-panel"
+                aria-label="Medicine instructions"
               >
-                {report?.kind === "manual"
-                  ? "Edit medicine details"
-                  : "Check the original instructions"}{" "}
-                <ArrowRight size={14} />
-              </button>
-              {!canRecord ? (
-                <div className="note">
-                  <Info size={19} />
-                  <p>
-                    Your access is view only. Ask the owner if you need
-                    permission to record care.
-                  </p>
-                </div>
-              ) : !report?.plan_saved || !selectedMedication.reviewed ? (
-                <div className="note">
-                  <Info size={19} />
-                  <p>
-                    {isOwner
-                      ? "Confirm the prescription overview before recording activity."
-                      : "The owner must review the medication details and save the plan before care can be recorded."}
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <p className="log-explanation">
-                    Record what happened. Follow your prescribed instructions;
-                    no dose or schedule is suggested here.
-                  </p>
-                  <label className="activity-label">
-                    Note (optional)
-                    <KeyboardInput
-                      aria-label="Medication note"
-                      value={activityNote}
-                      onChange={(e) => setActivityNote(e.target.value)}
-                      onBlur={() => keyboard.hide()}
-                      maxLength={500}
-                      placeholder="Add a note to this record"
-                    />
-                  </label>
-                  <div className="log-actions">
-                    <button
-                      className="secondary"
-                      disabled={busy}
-                      onClick={() => logMedication("skipped")}
-                      onPointerDown={(event) => event.preventDefault()}
-                    >
-                      <X size={17} />
-                      Record skipped
-                    </button>
-                    <button
-                      className="primary"
-                      disabled={busy}
-                      onClick={() => logMedication("taken")}
-                      onPointerDown={(event) => event.preventDefault()}
-                    >
-                      <Check size={17} />
-                      Record taken
-                    </button>
+                <div className="medicine-panel-heading">
+                  <span className="settings-row-icon">
+                    <Pill size={21} />
+                  </span>
+                  <div>
+                    <h3>Medicine instructions</h3>
+                    <p>
+                      {report?.kind === "manual"
+                        ? "Details added by you"
+                        : "Details from your prescription"}
+                    </p>
                   </div>
-                  <p className="fine-print">
-                    Records use the current time. You can undo an accidental
-                    entry.
-                  </p>
-                </>
-              )}
+                </div>
+                <div className="medication-facts">
+                  {selectedMedication.fields.map((field) => (
+                    <div key={field.id}>
+                      <span>{field.label}</span>
+                      <strong>{field.value}</strong>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  className="medicine-source-link"
+                  onClick={() => {
+                    setSheet(null);
+                    select(selectedMedication.fields[0]);
+                    navigate("Review");
+                  }}
+                >
+                  {report?.kind === "manual"
+                    ? "Edit medicine details"
+                    : "Check the original instructions"}{" "}
+                  <ArrowRight size={14} />
+                </button>
+              </section>
+              <section
+                className="medicine-panel medicine-record"
+                aria-label="Record activity"
+              >
+                <div className="medicine-panel-heading">
+                  <span className="settings-row-icon">
+                    <CheckCircle size={21} />
+                  </span>
+                  <div>
+                    <h3>Record activity</h3>
+                    <p>Manual records for this medicine</p>
+                  </div>
+                </div>
+                {!canRecord ? (
+                  <div className="note">
+                    <Info size={19} />
+                    <p>
+                      Your access is view only. Ask the owner if you need
+                      permission to record care.
+                    </p>
+                  </div>
+                ) : !report?.plan_saved || !selectedMedication.reviewed ? (
+                  <div className="note">
+                    <Info size={19} />
+                    <p>
+                      {isOwner
+                        ? "Confirm the prescription overview before recording activity."
+                        : "The owner must review the medication details and save the plan before care can be recorded."}
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="log-explanation">
+                      Record what happened. Follow your prescribed instructions;
+                      no dose or schedule is suggested here.
+                    </p>
+                    <label className="activity-label">
+                      Note (optional)
+                      <KeyboardInput
+                        aria-label="Medication note"
+                        value={activityNote}
+                        onChange={(e) => setActivityNote(e.target.value)}
+                        onBlur={() => keyboard.hide()}
+                        maxLength={500}
+                        placeholder="Add a note to this record"
+                      />
+                    </label>
+                    <div className="log-actions">
+                      <button
+                        className="secondary"
+                        disabled={busy}
+                        onClick={() => logMedication("skipped")}
+                        onPointerDown={(event) => event.preventDefault()}
+                      >
+                        <X size={17} />
+                        Record skipped
+                      </button>
+                      <button
+                        className="primary"
+                        disabled={busy}
+                        onClick={() => logMedication("taken")}
+                        onPointerDown={(event) => event.preventDefault()}
+                      >
+                        <Check size={17} />
+                        Record taken
+                      </button>
+                    </div>
+                    <p className="medicine-help">
+                      Records use the current time. You can undo an accidental
+                      entry.
+                    </p>
+                  </>
+                )}
+              </section>
               {report && (
                 <MedicineExplanation
                   reportId={report.id}
                   group={medicationGroup}
                 />
               )}
-              <SectionHeading title="Recent records" />
-              {recentActivity(medicationGroup)}
+              <section
+                className="medicine-panel medicine-history"
+                aria-label="Recent records"
+              >
+                <h3>Recent records</h3>
+                {recentActivity(medicationGroup)}
+              </section>
             </div>
           )}
           {sheet === "visit" && visitField && (

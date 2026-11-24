@@ -3,7 +3,7 @@ import json
 import re
 from datetime import date, datetime, time, timedelta, timezone
 from typing import Literal
-from uuid import uuid4
+from uuid import UUID, uuid4
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from fastapi import APIRouter, HTTPException
@@ -49,10 +49,19 @@ class Decision(BaseModel):
     attestation: Literal[True]
 
 
+class OfflineDose(BaseModel):
+    request_id: UUID
+    fingerprint: str = Field(min_length=64, max_length=64)
+    expected_recorded_at: str | None
+    after_request_id: UUID | None = None
+    recorded_at: AwareDatetime
+
+
 class DoseAction(BaseModel):
     due_at: AwareDatetime
     action: Literal["taken", "skipped", "snooze", "undo"]
     note: str = Field(default="", max_length=500)
+    offline: OfflineDose | None = None
 
 
 class Revocation(BaseModel):
@@ -267,6 +276,18 @@ def record_dose(report_id: str, schedule_id: str, action: DoseAction):
         if not row:
             raise HTTPException(404, "Schedule not found.")
         schedule = read_schedule(db, row)
+        signature = hashlib.sha256(action.model_dump_json().encode()).hexdigest()
+        if action.offline:
+            if store.patient_role(patient_id, db) != "owner":
+                raise HTTPException(403, "Offline dose recording is limited to your own records.")
+            receipt = db.execute("SELECT * FROM mobile_dose_receipts WHERE user_id=? AND request_id=?",
+                                 (store.current_user.get(), str(action.offline.request_id))).fetchone()
+            if receipt:
+                if receipt["signature"] != signature or receipt["schedule_id"] != schedule_id:
+                    raise HTTPException(409, "This offline request ID was already used for a different recording.")
+                return list_schedules_in_transaction(db, report_id)
+            if action.offline.fingerprint != schedule["fingerprint"]:
+                raise HTTPException(409, "The prescription changed. Check the latest plan before recording this dose.")
         if schedule["status"] not in {"approved", "active"} or eligibility(db, schedule):
             raise HTTPException(409, "This reminder is not active. Reconfirm the prescription overview and times.")
         due = action.due_at.astimezone(timezone.utc)
@@ -274,6 +295,18 @@ def record_dose(report_id: str, schedule_id: str, action: DoseAction):
         if due.isoformat() not in occurrence_times(schedule["payload"], day) or due > now_utc():
             raise HTTPException(422, "Choose an existing dose after its scheduled time.")
         previous = db.execute("SELECT * FROM scheduled_doses WHERE schedule_id=? AND due_at=?", (schedule_id, due.isoformat())).fetchone()
+        if action.offline:
+            expected = action.offline.expected_recorded_at
+            if action.offline.after_request_id:
+                receipt = db.execute("SELECT * FROM mobile_dose_receipts WHERE user_id=? AND request_id=?",
+                                     (store.current_user.get(), str(action.offline.after_request_id))).fetchone()
+                if not receipt or receipt["schedule_id"] != schedule_id or receipt["due_at"] != due.isoformat():
+                    raise HTTPException(409, "The earlier offline recording must sync first.")
+                expected = receipt["recorded_at"]
+            if (previous["recorded_at"] if previous else None) != expected:
+                raise HTTPException(409, "This dose was changed on another device. Review the current record.")
+            if not due <= action.offline.recorded_at <= now_utc() + timedelta(minutes=5):
+                raise HTTPException(422, "The offline recording time is outside the permitted dose period.")
         if action.action == "undo":
             if not previous or previous["status"] == "pending":
                 raise HTTPException(409, "There is no completed record to undo.")
@@ -281,18 +314,26 @@ def record_dose(report_id: str, schedule_id: str, action: DoseAction):
                 raise HTTPException(403, "You can only undo your own dose records.")
         elif previous and previous["status"] != "pending":
             if previous["status"] == action.action and previous["note"] == action.note:
+                if action.offline:
+                    db.execute("INSERT INTO mobile_dose_receipts VALUES (?,?,?,?,?,?)",
+                               (store.current_user.get(), str(action.offline.request_id), signature, schedule_id, due.isoformat(), previous["recorded_at"]))
                 return list_schedules_in_transaction(db, report_id)
             raise HTTPException(409, "This dose is already recorded. Undo it before correcting it.")
         status = action.action if action.action in {"taken", "skipped"} else "pending"
-        snoozed = (now_utc() + timedelta(minutes=10)).isoformat() if action.action == "snooze" else None
+        snoozed = ((action.offline.recorded_at if action.offline else now_utc()) + timedelta(minutes=10)).isoformat() if action.action == "snooze" else None
+        recorded_at = now_utc().isoformat()
         db.execute("""INSERT INTO scheduled_doses VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(schedule_id,due_at) DO UPDATE SET
             status=excluded.status,note=excluded.note,actor_id=excluded.actor_id,recorded_at=excluded.recorded_at,snoozed_until=excluded.snoozed_until""",
-            (schedule_id, due.isoformat(), status, action.note, store.current_user.get(), now_utc().isoformat(), snoozed, json.dumps(schedule["payload"])))
+            (schedule_id, due.isoformat(), status, action.note, store.current_user.get(), recorded_at, snoozed, json.dumps(schedule["payload"])))
+        if action.offline:
+            db.execute("INSERT INTO mobile_dose_receipts VALUES (?,?,?,?,?,?)",
+                       (store.current_user.get(), str(action.offline.request_id), signature, schedule_id, due.isoformat(), recorded_at))
         from .care import notify_caregivers
         if action.action != "snooze":
             notify_caregivers(db, patient_id, schedule, due.isoformat(), action.action)
         store.audit(db, patient_id, "dose_" + action.action, report_id,
-                    json.dumps({"schedule": schedule_id, "due": due.isoformat(), "previous": dict(previous) if previous else None, "note": action.note}))
+                    json.dumps({"schedule": schedule_id, "due": due.isoformat(), "previous": dict(previous) if previous else None, "note": action.note,
+                                **({"offline": action.offline.model_dump(mode="json")} if action.offline else {})}))
         return list_schedules_in_transaction(db, report_id)
 
 

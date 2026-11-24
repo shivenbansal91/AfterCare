@@ -1,5 +1,71 @@
 @import "tailwindcss";
 
+.native-screen {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+  transform: none !important;
+  --mobile-safe-area-height: 0px;
+}
+.native-screen,
+.native-screen * {
+  cursor: auto !important;
+}
+.native-screen .app-header {
+  top: 14px;
+}
+.native-screen .aftercare-scroll {
+  top: 70px !important;
+}
+.native-screen .account-screen {
+  padding-top: 0;
+}
+.native-screen .bottom-nav {
+  bottom: 12px;
+}
+.native-screen input,
+.native-screen textarea {
+  font-size: 16px;
+}
+.native-screen .bottom-sheet {
+  min-height: 0;
+}
+.phone-sync {
+  padding: 12px 14px;
+  margin: 0 0 18px;
+  border: 1px solid #d8e6dc;
+  border-radius: 16px;
+  background: #f6faf7cc;
+  font-size: 11px;
+}
+.phone-sync-heading {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.phone-sync small {
+  display: block;
+  color: #63746c;
+  margin-top: 3px;
+}
+.phone-sync p {
+  margin: 8px 0 0;
+}
+.phone-sync details {
+  margin-top: 8px;
+}
+.phone-conflict {
+  padding-top: 8px;
+  border-top: 1px solid #d8e6dc;
+  margin-top: 8px;
+}
+.phone-conflict button {
+  margin-top: 8px;
+}
+
 .choice-trigger {
   font:
     500 12px/1.5 "Manrope",
@@ -1340,6 +1406,196 @@
   font-size: 12px;
   font-weight: 600;
   overflow-wrap: anywhere;
+}
+.medicine-details {
+  display: grid;
+  gap: 14px;
+}
+.medicine-panel {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #dce8df;
+  border-radius: 20px;
+  background: #f8fbf9;
+}
+.medicine-panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 16px;
+}
+.medicine-panel h3,
+.medicine-panel h4 {
+  margin: 0;
+  color: #243e31;
+  font-size: 14px;
+  font-weight: 700;
+}
+.medicine-panel h4 {
+  font-size: 12px;
+  font-weight: 600;
+}
+.medicine-panel p {
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+}
+.medicine-panel-heading p,
+.medicine-attribution,
+.medicine-help {
+  display: block;
+  color: #63746c;
+  font-size: 11px;
+}
+.medicine-panel-heading p {
+  margin: 3px 0 0;
+}
+.medicine-details .medication-facts {
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.medicine-details .medication-facts > div {
+  padding: 10px 8px 10px 0;
+  border-top: 1px solid #e1ebe4;
+}
+.medicine-details .medication-facts > div:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+.medicine-source-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 14px 0 0;
+  margin-top: 10px;
+  border: 0;
+  border-top: 1px solid #dce8df;
+  background: transparent;
+  color: #176345;
+  text-align: left;
+  text-decoration: none;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.medicine-source-link strong,
+.medicine-source-link small {
+  display: block;
+}
+.medicine-source-link small {
+  margin-top: 4px;
+  color: #63746c;
+  font-size: 10px;
+}
+.medicine-source-link > svg {
+  flex-shrink: 0;
+}
+.medicine-source-link:focus-visible,
+.medicine-panel summary:focus-visible {
+  outline: 2px solid #176345;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.medicine-record .log-explanation {
+  margin: 0 0 14px;
+}
+.medicine-record .activity-label {
+  margin: 0;
+}
+.medicine-record .log-actions {
+  margin-top: 14px;
+}
+.medicine-record .log-actions button {
+  min-height: 44px;
+  padding-inline: 8px;
+  font-size: 11px;
+}
+.medicine-record .medicine-help {
+  margin-top: 12px;
+}
+.medicine-explanation {
+  background: #f0f6f2;
+}
+.medicine-prescription,
+.report-context {
+  padding-top: 14px;
+  margin-top: 16px;
+  border-top: 1px solid #dce8df;
+}
+.medicine-attribution {
+  margin-top: 8px;
+  line-height: 1.6;
+}
+.medicine-prescription .medicine-missing {
+  color: #63746c;
+  font-size: 12px;
+}
+.medicine-context-item + .medicine-context-item {
+  margin-top: 14px;
+}
+.medicine-context-item p {
+  margin-top: 3px;
+}
+.explanation-evidence {
+  margin-top: 12px;
+  font-size: 11px;
+}
+.explanation-evidence summary {
+  color: #176345;
+  cursor: pointer;
+}
+.medicine-information-note {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #dce8df;
+  border-radius: 12px;
+  background: #ffffff85;
+  font-size: 11px;
+}
+.medicine-information-note summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 24px;
+  color: #466252;
+  cursor: pointer;
+  list-style: none;
+}
+.medicine-information-note summary::-webkit-details-marker {
+  display: none;
+}
+.medicine-information-note summary svg:last-child {
+  margin-left: auto;
+}
+.medicine-information-note[open] summary svg:last-child {
+  transform: rotate(180deg);
+}
+.medicine-history {
+  background: white;
+}
+.medicine-history .activity-list {
+  padding: 0;
+  border: 0;
+}
+.medicine-history-empty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 0 2px;
+}
+.medicine-history-empty strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.medicine-history-empty p {
+  color: #63746c;
+  font-size: 11px;
+  margin-top: 4px;
 }
 .log-explanation {
   color: #627669;

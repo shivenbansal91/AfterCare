@@ -35,7 +35,7 @@ type KeyboardInputProps = InputHTMLAttributes<HTMLInputElement> & {
 const KeyboardContext = createContext<KeyboardContextValue | null>(null);
 
 export function KeyboardProvider({ children }: PropsWithChildren) {
-  const { device } = useMobileDevice();
+  const { device, native } = useMobileDevice();
   const [visible, setVisible] = useState(false);
   const [dragOffset, setRawDragOffset] = useState(0);
   const [isDragging, setDragging] = useState(false);
@@ -60,7 +60,7 @@ export function KeyboardProvider({ children }: PropsWithChildren) {
         setRawDragOffset(0);
         setDragging(false);
         setFocusedElement(element ?? null);
-        setVisible(true);
+        if (!native) setVisible(true);
       },
       hide: () => {
         focusedElement?.blur();
@@ -69,7 +69,7 @@ export function KeyboardProvider({ children }: PropsWithChildren) {
         setVisible(false);
       },
     }),
-    [dragOffset, focusedElement, fullHeight, isDragging, visible],
+    [dragOffset, focusedElement, fullHeight, isDragging, visible, native],
   );
 
   return <KeyboardContext.Provider value={value}>{children}</KeyboardContext.Provider>;

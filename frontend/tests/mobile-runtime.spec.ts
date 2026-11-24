@@ -301,3 +301,39 @@ test("FlowStack pushes and pops screens while dismissing the keyboard", async ({
   await page.getByRole("button", { name: "Done" }).click();
   await expect(page.getByRole("heading", { name: "Flow root" })).toBeVisible();
 });
+
+test("native layout fills the viewport and uses phone input instead of simulated chrome", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/tests/runtime-fixture.html?fixture=native");
+  await expect(page.getByTestId("phone-frame")).toHaveCount(0);
+  await expect(page.getByTestId("device-picker")).toHaveCount(0);
+  await expect(page.getByLabel("Device status bar")).toHaveCount(0);
+  await page.getByLabel("Phone medicine name").fill("Example medicine");
+  await expect(page.getByTestId("keyboard-dock")).toHaveCount(0);
+  await expect(page.getByLabel("Phone medicine name")).toHaveValue("Example medicine");
+  const screen = page.getByTestId("device-screen");
+  expect(await screen.boundingBox()).toEqual({ x: 0, y: 0, width: 390, height: 844 });
+  await page.setViewportSize({ width: 844, height: 390 });
+  await expect.poll(async () => (await screen.boundingBox())?.width).toBe(844);
+  await expect(page.getByLabel("Phone medicine name")).toHaveValue("Example medicine");
+});
+
+test("native sheets stay inside the real phone viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 740 });
+  await page.goto("/tests/runtime-fixture.html?fixture=native");
+  await page.getByRole("button", { name: "Open phone sheet" }).click();
+  const sheet = page.getByTestId("bottom-sheet");
+  await expect(sheet).toBeVisible();
+  await expect.poll(async () => {
+    const bounds = await sheet.boundingBox();
+    return bounds ? bounds.y + bounds.height : Infinity;
+  }).toBeLessThanOrEqual(741);
+  await page.setViewportSize({ width: 740, height: 220 });
+  await expect.poll(async () => (await sheet.boundingBox())?.y ?? -1).toBeGreaterThanOrEqual(0);
+  await expect.poll(async () => {
+    const bounds = await sheet.boundingBox();
+    return bounds ? bounds.y + bounds.height : Infinity;
+  }).toBeLessThanOrEqual(221);
+  await page.keyboard.press("Escape");
+  await expect(sheet).toHaveCount(0);
+});
